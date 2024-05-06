@@ -53,6 +53,14 @@ class CohereRerankRetriever_Retrievers implements INode {
                     {
                         label: 'rerank-multilingual-v2.0',
                         name: 'rerank-multilingual-v2.0'
+                    },
+                    {
+                        label: 'rerank-english-v3.0',
+                        name: 'rerank-english-v3.0'
+                    },
+                    {
+                        label: 'rerank-multilingual-v3.0',
+                        name: 'rerank-multilingual-v3.0'
                     }
                 ],
                 default: 'rerank-english-v2.0',
@@ -109,36 +117,4 @@ class CohereRerankRetriever_Retrievers implements INode {
     async init(nodeData: INodeData, input: string, options: ICommonObject): Promise<any> {
         const baseRetriever = nodeData.inputs?.baseRetriever as BaseRetriever
         const model = nodeData.inputs?.model as string
-        const query = nodeData.inputs?.query as string
-        const credentialData = await getCredentialData(nodeData.credential ?? '', options)
-        const cohereApiKey = getCredentialParam('cohereApiKey', credentialData, nodeData)
-        const topK = nodeData.inputs?.topK as string
-        const k = topK ? parseFloat(topK) : (baseRetriever as VectorStoreRetriever).k ?? 4
-        const maxChunksPerDoc = nodeData.inputs?.maxChunksPerDoc as string
-        const max_chunks_per_doc = maxChunksPerDoc ? parseFloat(maxChunksPerDoc) : 10
-        const output = nodeData.outputs?.output as string
-
-        const cohereCompressor = new CohereRerank(cohereApiKey, model, k, max_chunks_per_doc)
-
-        const retriever = new ContextualCompressionRetriever({
-            baseCompressor: cohereCompressor,
-            baseRetriever: baseRetriever
-        })
-
-        if (output === 'retriever') return retriever
-        else if (output === 'document') return await retriever.getRelevantDocuments(query ? query : input)
-        else if (output === 'text') {
-            let finaltext = ''
-
-            const docs = await retriever.getRelevantDocuments(query ? query : input)
-
-            for (const doc of docs) finaltext += `${doc.pageContent}\n`
-
-            return handleEscapeCharacters(finaltext, false)
-        }
-
-        return retriever
-    }
-}
-
-module.exports = { nodeClass: CohereRerankRetriever_Retrievers }
+        const query = nodeData
