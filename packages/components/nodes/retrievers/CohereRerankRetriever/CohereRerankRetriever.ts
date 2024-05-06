@@ -63,7 +63,7 @@ class CohereRerankRetriever_Retrievers implements INode {
                         name: 'rerank-multilingual-v3.0'
                     }
                 ],
-                default: 'rerank-english-v2.0',
+                default: 'rerank-multilingual-v3.0',
                 optional: true
             },
             {
